@@ -1,7 +1,7 @@
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
@@ -55,22 +55,22 @@ int main(int argc,char* argv[]) {
       struct tm * cur_time, * nex_time;
       rawtime = time(NULL);
       loctime = localtime (&rawtime);  
-      strftime(file, 100, "/home/it/Desktop/%Y-%m-%d_%H:%M:%S", loctime);
+      strftime(file, 100, "/home/donny/modul2/%Y-%m-%d_%H:%M:%S", loctime);
       strftime(zipFIle, 100, "%Y-%m-%d_%H:%M:%S", loctime);
 
-      if(fork()==0){
+      if(fork()==0)
+      {
         execl("/bin/mkdir","mkdir","-p",file, NULL);
       }
       if(fork()==0){
         for(int i=0; i<20 ;i++){
           cur_time = time(NULL);
           nex_time = localtime(&cur_time);
-
           if(fork()==0){
             strftime(file1, 100, "/%Y-%m-%d_%H:%M:%S", nex_time);
             strcat(file, file1);
-            int size = ((cur_time % 1000) + 100);
-            sprintf(url,"https://picsum.photos/%d",size);
+            int file_size = ((cur_time % 1000) + 100);
+            sprintf(url,"https://picsum.photos/%d",file_size);
             execl("/usr/bin/wget","wget","-O", file, url, NULL);
           }
           sleep(5);
@@ -78,8 +78,6 @@ int main(int argc,char* argv[]) {
         pid = wait(NULL);
         if(fork()==0){   
           execl("/usr/bin/zip","zip","-rm", zipFile, zipFile, NULL);
-        }
-      }
+        }}
     sleep(30);     
-    }
-}
+    }}
