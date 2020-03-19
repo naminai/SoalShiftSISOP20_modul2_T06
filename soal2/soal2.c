@@ -50,13 +50,13 @@ int main(int argc,char* argv[]) {
       char file[100];
       char url[100];
       char dirList[100];
-      char zipFIle[100];
+      char zipFile[100];
       time_t rawtime, loctime;
       struct tm * cur_time, * nex_time;
       rawtime = time(NULL);
-      loctime = localtime (&rawtime);  
-      strftime(file, 100, "/home/donny/modul2/%Y-%m-%d_%H:%M:%S", loctime);
-      strftime(zipFIle, 100, "%Y-%m-%d_%H:%M:%S", loctime);
+      cur_time = localtime (&rawtime);  
+      strftime(file, 100, "/home/donny/modul2/%Y-%m-%d_%H:%M:%S", cur_time);
+      strftime(zipFile, 100, "%Y-%m-%d_%H:%M:%S", cur_time);
 
       if(fork()==0)
       {
@@ -64,12 +64,12 @@ int main(int argc,char* argv[]) {
       }
       if(fork()==0){
         for(int i=0; i<20 ;i++){
-          cur_time = time(NULL);
-          nex_time = localtime(&cur_time);
+          loctime = time(NULL);
+          nex_time = localtime(&rawtime);
           if(fork()==0){
-            strftime(file1, 100, "/%Y-%m-%d_%H:%M:%S", nex_time);
-            strcat(file, file1);
-            int file_size = ((cur_time % 1000) + 100);
+            strftime(newFile, 100, "/%Y-%m-%d_%H:%M:%S", nex_time);
+            strcat(file, newFile);
+            int file_size = ((loctime % 1000) + 100);
             sprintf(url,"https://picsum.photos/%d",file_size);
             execl("/usr/bin/wget","wget","-O", file, url, NULL);
           }
