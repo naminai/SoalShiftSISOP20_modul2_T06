@@ -54,7 +54,7 @@ int main (int jumlah, char *argumen[]) {
     printf("Menitnya tuh kebanyakan, kurangin dong\n");
   }
   if (menit<0) {
-    print("Menitnya tuh kurang banyak, tambahin dong\n");
+    printf("Menitnya tuh kurang banyak, tambahin dong\n");
   }
   if (jam>=25) {
     printf("Jamnya tuh kebanyakan, tambahin dong\n");
