@@ -39,9 +39,9 @@ Buatlah program C yang menyerupai crontab untuk menjalankan script bash dengan k
 **Pertanyaan** 
 Program menerima 4 argumen berupa: 
 i. Detik: 0-59 atau * (any value) 
-ii. Menit: 0-59 atau * (any value) 
-iii. Jam: 0-23 atau * (any value) 
-iv. Path file .sh 
+\ii. Menit: 0-59 atau * (any value) 
+\iii. Jam: 0-23 atau * (any value) 
+\iv. Path file .sh 
 
 ### Soal 1.b. 
 
