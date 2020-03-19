@@ -60,7 +60,7 @@ int main (int jumlah, char *argumen[]) {
     printf("Jamnya tuh kebanyakan, tambahin dong\n");
   }
   if (jam<0) {
-    print("Jamnya tuh kurang banyak, tambahin dong\n");
+    printf("Jamnya tuh kurang banyak, tambahin dong\n");
   }
 
   while (1) 
