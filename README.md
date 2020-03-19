@@ -63,8 +63,84 @@ Program berjalan di background (daemon)!
 **Pertanyaan** 
 Tidak boleh menggunakan fungsi system()! 
 
-### Penyelesaian. 
+## Penyelesaian. 
 
+```
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+#include <syslog.h>
+#include <string.h>
+#include <time.h>
+
+int main (int jumlah, char *argumen[]) {
+  pid_t pid, sid;
+  pid = fork();
+  if (pid < 0) {
+    exit(EXIT_FAILURE);
+  }
+ 
+  if (pid > 0) {
+   exit(EXIT_SUCCESS);
+  }
+
+umask(0);
+
+  sid = setsid();
+  if (sid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+  
+  int detik = -1;
+  int menit = -1;
+  int jam = -1;
+  time_t waktu = time(NULL);
+  struct tm cTime = *localtime(&waktu);
+  if (jumlah != 5) {
+    printf ("Argumen terlalu banyak / terlalu sedikit, pastikan pas\n");
+    }
+  if (argumen[1][0] != '*') detik = atoi(argumen[1]);
+  if (argumen[2][0] != '*') menit = atoi(argumen[2]);
+  if (argumen[3][0] != '*') jam = atoi(argumen[3]);
+
+  if (detik>=60) {
+    printf("Detiknya tuh kebanyakan, kurangin dong\n");
+  }
+  if (detik<0) {
+    printf("Detiknya tuh kurang banyak, banyakin dong\n");
+  }
+  if (menit>=60) {
+    printf("Menitnya tuh kebanyakan, kurangin dong\n");
+  }
+  if (menit<0) {
+    printf("Menitnya tuh kurang banyak, tambahin dong\n");
+  }
+  if (jam>=25) {
+    printf("Jamnya tuh kebanyakan, tambahin dong\n");
+  }
+  if (jam<0) {
+    printf("Jamnya tuh kurang banyak, tambahin dong\n");
+  }
+
+  while (1) 
+  {
+  waktu = time(NULL);
+  cTime = *localtime(&waktu);
+  if ((cTime.tm_hour == jam || jam == -1) && (cTime.tm_min == menit || menit == -1) && (cTime.tm_sec == detik || detik == -1)) {
+    if (fork()==0)
+      execl("/bin/bash", "bash", argumen[4], NULL);}
+      sleep(1);
+  }
+}     
+```
 
 ## Soal 2 
 Source code : [source](https://github.com/naminai/SoalShiftSISOP20_modul2_T06/tree/master/soal2) 
@@ -97,8 +173,94 @@ Karena takut program tersebut lepas kendali, Kiwa ingin program tersebut men- ge
 **Pertanyaan**
 Kiwa menambahkan bahwa program utama bisa dirun dalam dua mode, yaitu MODE_A dan MODE_B. untuk mengaktifkan MODE_A, program harus dijalankan dengan argumen -a. Untuk MODE_B, program harus dijalankan dengan argumen -b. Ketika dijalankan dalam MODE_A, program utama akan langsung menghentikan semua operasinya ketika program killer dijalankan. Untuk MODE_B, ketika program killer dijalankan, program utama akan berhenti tapi membiarkan proses di setiap folder yang masih berjalan sampai selesai(semua folder terisi gambar, terzip lalu di delete).
 
-### Penyelesaian.
+## Penyelesaian.
 
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+#include <syslog.h>
+#include <string.h>
+#include <time.h>
+#include <signal.h>
+#include <wait.h>
+
+int main(int argc,char* argv[]) { 
+
+  pid_t pid, sid;        // Variabel untuk menyimpan PID
+  pid_t child_id;
+
+  pid = fork();     // Menyimpan PID dari Child Process
+  child_id = fork();
+  /* Keluar saat fork gagal
+  * (nilai variabel pid < 0) */
+  if (pid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  /* Keluar saat fork berhasil
+  * (nilai variabel pid adalah PID dari child process) */
+  if (pid > 0) {
+    exit(EXIT_SUCCESS);
+  }
+
+  umask(0);
+
+  sid = setsid();
+  if (sid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+
+   if (child_id < 0) {
+    exit(EXIT_FAILURE);
+   }
+
+   while (1){
+      char newFile[100];
+      char file[100];
+      char url[100];
+      char dirList[100];
+      char zipFIle[100];
+      time_t rawtime, loctime;
+      struct tm * cur_time, * nex_time;
+      rawtime = time(NULL);
+      loctime = localtime (&rawtime);  
+      strftime(file, 100, "/home/donny/modul2/%Y-%m-%d_%H:%M:%S", loctime);
+      strftime(zipFIle, 100, "%Y-%m-%d_%H:%M:%S", loctime);
+
+      if(fork()==0)
+      {
+        execl("/bin/mkdir","mkdir","-p",file, NULL);
+      }
+
+      if(fork()==0){
+        for(int i=0; i<20 ;i++){
+          cur_time = time(NULL);
+          nex_time = localtime(&cur_time);
+          if(fork()==0){
+            strftime(file1, 100, "/%Y-%m-%d_%H:%M:%S", nex_time);
+            strcat(file, file1);
+            int file_size = ((cur_time % 1000) + 100);
+            sprintf(url,"https://picsum.photos/%d",file_size);
+            execl("/usr/bin/wget","wget","-O", file, url, NULL);
+          }
+          sleep(5);
+        }
+        pid = wait(NULL);
+        if(fork()==0){   
+          execl("/usr/bin/zip","zip","-rm", zipFile, zipFile, NULL);
+        }}
+    sleep(30);     
+    }}
+```
 
 ## Soal 3
 Source Code : [souce](https://github.com/naminai/SoalShiftSISOP20_modul2_T06/tree/master/soal3)
@@ -116,12 +278,130 @@ Program buatan jaya harus bisa membuat dua direktori di “/home/[USER]/modul2/�
 **Pertanyaan**
 Kemudian program tersebut harus meng-ekstrak file jpg.zip di direktori “/home/[USER]/modul2/”. Setelah tugas sebelumnya selesai, ternyata tidak hanya itu tugasnya.
 
-## Soal 3.c.
+### Soal 3.c.
 
 **Pertanyaan**
 Diberilah tugas baru yaitu setelah di ekstrak, hasil dari ekstrakan tersebut (di dalam direktori “home/[USER]/modul2/jpg/”) harus dipindahkan sesuai dengan pengelompokan, semua file harus dipindahkan ke “/home/[USER]/modul2/sedaap/” dan semua direktori harus dipindahkan ke “/home/[USER]/modul2/indomie/”.
 
-## Soal 3.d.
+### Soal 3.d.
 
 **Pertanyaan**
 Untuk setiap direktori yang dipindahkan ke “/home/[USER]/modul2/indomie/” harus membuat dua file kosong. File yang pertama diberi nama “coba1.txt”, lalu 3 detik kemudian membuat file bernama “coba2.txt”. (contoh : “/home/[USER]/modul2/indomie/{nama_folder}/coba1.txt”).
+
+## Penyelesaian.
+
+```
+#include <stdio.h> 
+#include <stdlib.h>
+#include <unistd.h>  
+#include <string.h> 
+#include <sys/stat.h>
+#include <dirent.h>
+#include <wait.h>
+
+int findStat(const char *path)
+{
+  struct stat pathDir; 
+  stat(path, &pathDir);
+  return S_ISDIR(pathDir.st_mode); //Melakukan cek apakah directory?
+}
+
+int main()
+{
+	pid_t child1 = fork();
+	pid_t child2 = fork();
+	pid_t child  = fork(); 	
+	int status; //status akhir 
+	if (child1 > 0 && child2 > 0)
+ 	{ 
+			while ((wait(&status)) > 0);
+			DIR *directory; 
+			struct dirent *folder;
+			chdir("/home/donny/modul2/jpg/"); 
+			directory = opendir(".");
+			if (directory)
+			{
+	      	while ((folder = readdir(directory)) != NULL)
+			{
+			  	if(strcmp(folder->d_name,"..")==0 || strcmp(folder->d_name,".")==0)
+					continue;
+			  	if(findStat(folder->d_name))
+				{
+			  		if(fork() == 0)
+					{
+			        	char folder_pindah[1000];
+			        	sprintf(folder_pindah,"/home/donny/modul2/jpg/%s",folder->d_name);
+			        	char* argv[] = {"mv", folder_pindah,"/home/donny/modul2/indomie/", NULL};
+			        	execv("/bin/mv", argv);
+		      		}
+		      		else
+					{
+		        		while ((wait(&status)) > 0);
+		          		if(fork() == 0)
+						{
+		          			if(fork() == 0)
+							{
+				  	    		char coba1[1000];
+				  	    		FILE *file;
+				    	    	sprintf(coba1,"/home/donny/modul2/indomie/%s/coba1.txt",folder->d_name);
+				    	    	file = fopen(coba1, "w");
+				    	    	fclose(file);
+		      	  			}
+		            		else
+							{
+				        		while ((wait(&status)) > 0);
+				        		sleep(3);
+				        		char coba2[1000];
+				        		FILE *file;
+				        		sprintf(coba2,"/home/donny/modul2/indomie/%s/coba2.txt",folder->d_name);
+				        		file = fopen(coba2, "w");
+				        		fclose(file);
+				        		exit(0);
+				      		}
+		        		}
+		        		else
+						{
+				      		while ((wait(&status)) > 0);
+			    			exit(0);
+					    }
+					}
+		    	}
+		      	else
+				{
+		      		while ((wait(&status)) > 0);
+		      		if(fork() == 0)
+					{
+			      		while ((wait(&status)) > 0);
+			      		char file_pindah[1000];
+				      	sprintf(file_pindah,"/home/donny/modul2/jpg/%s",folder->d_name);
+				      	char* argv[] = {"mv", file_pindah,"/home/donny/modul2/sedaap/", NULL};
+				      	execv("/bin/mv", argv);
+					}
+			  	}        
+			}
+		}
+	}	 
+	else if (child1== 0 && child2 > 0)
+	{ 
+	    while ((wait(&status)) > 0);
+	    if (child == 0)
+		{
+			char *argv[] = {"mkdir", "-p","/home/donny/modul2/indomie", NULL};
+		    execv("/bin/mkdir", argv);
+    	}
+    	else
+		{
+			while ((wait(&status)) > 0);
+      		sleep(5);
+      		char *argv[] = {"mkdir", "-p","/home/donny/modul2/sedaap", NULL};
+      		execv("/bin/mkdir", argv);
+    	}	
+  	} 
+	else if (child1 > 0 && child2 == 0)
+	{ 
+	    char* argv[] = {"unzip", "-q","/home/donny/modul2/jpg.zip", NULL};
+	    execv("/usr/bin/unzip", argv);
+	}
+	return 0; 
+} 
+```
