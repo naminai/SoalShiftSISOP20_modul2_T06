@@ -48,7 +48,7 @@ int main (int jumlah, char *argumen[]) {
     printf("Detiknya tuh kebanyakan, kurangin dong\n");
   }
   if (detik<0) {
-    print("Detiknya tuh kurang banyak, banyakin dong\n");
+    printf("Detiknya tuh kurang banyak, banyakin dong\n");
   }
   if (menit>=60) {
     printf("Menitnya tuh kebanyakan, kurangin dong\n");
