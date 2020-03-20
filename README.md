@@ -204,7 +204,12 @@ close(STDIN_FILENO);
   1. Melakukan pengecekan untuk jam, menit, dan detik terhadap waktu lokal. Terkecuali apabila jam = -1, maka kita perlakukan sebagai `*` atau any value. 
   2. Selain itu maka kita sesuaikan dengan jam, menit, maupun detik argumen. Apabila waktu lokal sama dengan argumen, maka program bash `argumen[4]` dijalankan dengan `execl`. 
   3. Sleep setiap 1 detik, agar daemon terus melakukan cek setiap detiknya (apabila `*` atau any value).
-  
+
+## Output Soal 1
+![Modul 2 Soal 1](https://user-images.githubusercontent.com/61267430/77213670-4354d980-6b3e-11ea-969c-c5589d63dfc0.png)
+![Modul2 Soal 1 bash](https://user-images.githubusercontent.com/61267430/77213715-67b0b600-6b3e-11ea-910f-450adeda82b8.png)
+![Soal 1 isi bash](https://user-images.githubusercontent.com/61267430/77213784-ad6d7e80-6b3e-11ea-978b-d63e151d133c.png)
+
 ## Soal 2 
 Source code : [source](https://github.com/naminai/SoalShiftSISOP20_modul2_T06/tree/master/soal2) 
 
@@ -369,6 +374,9 @@ if(fork()==0){
 2. Menggunakan integer `file_size` untuk menyimpan ukuran gambar.
 3. Menggunakan sprintf untuk mendapatkan nama file berdasarkan `file_size` dan disimpan ke variabel `url`.
 4. Mendownload gambar dari picsum.photos menggunakan `wget`.
+
+## Output Soal 2
+![Modul 2 Soal 2](https://user-images.githubusercontent.com/61267430/77213815-d0982e00-6b3e-11ea-8d7d-2f9eaf93d542.png)
 
 ## Soal 3
 Source Code : [souce](https://github.com/naminai/SoalShiftSISOP20_modul2_T06/tree/master/soal3)
@@ -633,6 +641,13 @@ else if (child1 > 0 && child2 == 0)
 ```
 1. Merupakan Child2
 2. Menggunakan `execv` kita dapat menggunakan `unzip` terhadap jpg.zip dengan mode `-q` (quiet) atau tanpa menyebutkan masing-masing nama file yang telah di unzip ke terminal.
+
+## Output Soal 3
+![Modul 2 Soal 3](https://user-images.githubusercontent.com/61267430/77213623-07ba0f80-6b3e-11ea-81de-efeeab8f25db.png)
+![Modul 2 Soal 3 folders](https://user-images.githubusercontent.com/61267430/77213601-f96bf380-6b3d-11ea-9097-71abdb9fa95e.png)
+![Modul 2 Soal 3 Indomie](https://user-images.githubusercontent.com/61267430/77213635-16082b80-6b3e-11ea-872e-338e8c1c531d.png)
+![Output Soal 3 Coba1+2](https://user-images.githubusercontent.com/61267430/77213321-06d4ae00-6b3d-11ea-880f-50915aed53cb.png)
+![Sedaap](https://user-images.githubusercontent.com/61267430/77213647-228c8400-6b3e-11ea-92ce-f298f13de3ba.png)
 
 ## Kendala.
 - Nomor 2 tidak dapat diselesaikan praktikkan (poin d dan e) dikarenakan praktikkan belum mengetahui bagaimana solusi ataupun langkah-langkah menuju penyelesaian 
