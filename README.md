@@ -26,6 +26,7 @@ Kelompok T06
   * [Soal 3.c.](#soal-3c) 
   * [Soal 3.d.](#soal-3d) 
   * [Penyelesaian.](#penyelesaian) 
+* [Kendala]
 --- 
 
 ## Soal 1 
@@ -323,7 +324,52 @@ int main(int argc,char* argv[]) {
     }}
 ```
 
-1. Deklarasi newFile
+```
+char newFile[100];
+      char file[100];
+      char url[100];
+      char dirList[100];
+      char zipFile[100];
+      time_t rawtime, loctime;
+      struct tm * cur_time, * nex_time;
+```
+1. Deklarasi variabel seperti biasa dan juga struct tm dan time_t seperti soal nomor 1.
+2. Menggunakan 2 variabel untuk masing-masing agar untuk folder dan image size.
+
+```
+strftime(file, 100, "/home/donny/modul2/%Y-%m-%d_%H:%M:%S", cur_time);
+strftime(zipFile, 100, "%Y-%m-%d_%H:%M:%S", cur_time);
+```
+1. Menggunakan `strftime` untuk mendapatkan waktu sesuai dengan setting yang kita inginkan yaitu `%Y-%m-%d_%H:%M:%S"`.
+2. Memasukkan kepada variabel file untuk dibuat menjadi nama folder.
+3. Memasukkan kepada variabel zipFile untuk menjadi nama zip.
+
+```
+ if(fork()==0)
+      {
+        execl("/bin/mkdir","mkdir","-p",file, NULL);
+      }
+```
+1. Menggunakan `execl` untuk menggunakan `mkdir` untuk membuat folder bernama `file` yang berarti waktu diunduhnya gambar.
+
+```
+if(fork()==0){
+        for(int i=0; i<20 ;i++){
+          loctime = time(NULL);
+          nex_time = localtime(&rawtime);
+          if(fork()==0){
+            strftime(newFile, 100, "/%Y-%m-%d_%H:%M:%S", nex_time);
+            strcat(file, newFile);
+            int file_size = ((loctime % 1000) + 100);
+            sprintf(url,"https://picsum.photos/%d",file_size);
+            execl("/usr/bin/wget","wget","-O", file, url, NULL);
+          }
+```
+1. Melakukan download sebanyak 20 kali dengan melakukan loop `for(int i=0; i<20 ;i++)`
+2. Menggunakan integer `file_size` untuk menyimpan ukuran gambar.
+3. Menggunakan sprintf untuk mendapatkan nama file berdasarkan `file_size` dan disimpan ke variabel `url`.
+4. Mendownload gambar dari picsum.photos menggunakan `wget`.
+
 ## Soal 3
 Source Code : [souce](https://github.com/naminai/SoalShiftSISOP20_modul2_T06/tree/master/soal3)
 
@@ -467,3 +513,127 @@ int main()
 	return 0; 
 } 
 ```
+
+```
+int findStat(const char *path)
+{
+  struct stat pathDir; 
+  stat(path, &pathDir);
+  return S_ISDIR(pathDir.st_mode); //Melakukan cek apakah directory?
+}
+```
+1. Mendeklarasikan function findStat dengan argumen path/nama direktori.
+2. Menggunaka struct stat dari <sys/stat.h> yang digunakan untuk mendapatkan data suatu file/direktori.
+3. Melakukan stat dengan argumen path (pathname file/direktori) dan pointer pathDir sebagai pointer terhadap stat structure.
+4. Kemudian menggunakan S_ISDIR untuk menentukan apakah dia adalah direktori atau bukan (Jika direktori, dia akan me-return value bukan nol).
+
+```
+if (child1 > 0 && child2 > 0)
+ 	{ 
+			while ((wait(&status)) > 0);
+			DIR *directory; 
+			struct dirent *folder;
+			chdir("/home/donny/modul2/jpg/"); 
+			directory = opendir(".");
+```
+1. Merupakan parent, menunggu apabila child1 dan child2 sudah selesai. 
+2. `DIR *directory;` Mendeklarasikan directory sebagai type DIR(directory stream) yang mana merupakan list dari seluruh isi dari sebuah direktori.
+3. `struct dirent *folder;` Mendeklarasikan folder sebagai pointer terhadap struct dirent, yang digunakan untuk mendapatkan d_name dari masing-masing file/folder dari direktori `directory`.
+4. Mengganti working directory menggunakan `chdir` ke dalam direktori jpg.
+5. Menggunakan `opendir` untuk membuka directory stream yang akan digunakan type DIR `directory`.
+
+```
+if (directory)
+			{
+	      	while ((folder = readdir(directory)) != NULL)
+			{
+			  	if(strcmp(folder->d_name,"..")==0 || strcmp(folder->d_name,".")==0)
+					continue;
+```
+1. Apabila dapat dilakukan directory stream (yang berarti opendir berhasil), function `readdir` akan mulai membaca dari posisi awal directory stream hingga `NULL` yang merupakan end dari directory stream.
+2. Dengan menggunakan `strcmp` kita dapat mengecek apabila terdapat `d_name` (nama folder) yang bernama `.` atau `..` maka tidak perlu dicek lebih lanjut dengan statement `continue` yang melanjutkan ke baris berikutnya.
+
+```
+if(findStat(folder->d_name))
+				{
+			  		if(fork() == 0)
+					{
+			        	char folder_pindah[1000];
+			        	sprintf(folder_pindah,"/home/donny/modul2/jpg/%s",folder->d_name);
+			        	char* argv[] = {"mv", folder_pindah,"/home/donny/modul2/indomie/", NULL};
+			        	execv("/bin/mv", argv);
+		      		}
+		      		else
+					{
+		        		while ((wait(&status)) > 0);
+		          		if(fork() == 0)
+						{
+		          			if(fork() == 0)
+							{
+				  	    		char coba1[1000];
+				  	    		FILE *file;
+				    	    	sprintf(coba1,"/home/donny/modul2/indomie/%s/coba1.txt",folder->d_name);
+				    	    	file = fopen(coba1, "w");
+				    	    	fclose(file);
+		      	  			}
+							while ((wait(&status)) > 0);
+				        		sleep(3);
+				        		char coba2[1000];
+				        		FILE *file;
+				        		sprintf(coba2,"/home/donny/modul2/indomie/%s/coba2.txt",folder->d_name);
+				        		file = fopen(coba2, "w");
+				        		fclose(file);
+				        		exit(0);
+```
+1. Memindahkan folder yang ada dalam direktori jpg menuju ke direktori indomie menggunakan `execv` dan `mv`
+2. Menambahkan file bernama coba1.txt kepada folder pada direktori indomie menggunakan `fopen` dengan mode `w` (write)  kemudian menutupnya dengan `fclose`.
+3. Setelah coba1.txt berhasil dibuat maka kita tunggu 3 detik dengan `sleep(3)`. Menambahkan file bernama coba2.txt kepada folder pada direktori indomie menggunakan `fopen` dengan mode `w` (write)  kemudian menutupnya dengan `fclose`.
+
+```
+{
+		      		while ((wait(&status)) > 0);
+		      		if(fork() == 0)
+					{
+			      		while ((wait(&status)) > 0);
+			      		char file_pindah[1000];
+				      	sprintf(file_pindah,"/home/donny/modul2/jpg/%s",folder->d_name);
+				      	char* argv[] = {"mv", file_pindah,"/home/donny/modul2/sedaap/", NULL};
+				      	execv("/bin/mv", argv);
+					}
+```
+1. Memindahkan sisa file yang ada di dalam direktori jpg ke direktori sedaap.
+
+```
+else if (child1== 0 && child2 > 0)
+	{ 
+	    while ((wait(&status)) > 0);
+	    if (child == 0)
+		{
+			char *argv[] = {"mkdir", "-p","/home/donny/modul2/indomie", NULL};
+		    execv("/bin/mkdir", argv);
+    	}
+    	else
+		{
+			while ((wait(&status)) > 0);
+      		sleep(5);
+      		char *argv[] = {"mkdir", "-p","/home/donny/modul2/sedaap", NULL};
+      		execv("/bin/mkdir", argv);
+```
+1. Merupakan Child1
+2. Menggunakan `execv` kita menggunakan `mkdir` untuk membuat folder bernama `indomie`.
+3. Menggunakan `sleep (5)` untuk menunggu 5 detik setelah pembuatan folder indomie untuk membuat folder `sedaap`.
+
+```
+else if (child1 > 0 && child2 == 0)
+	{ 
+	    char* argv[] = {"unzip", "-q","/home/donny/modul2/jpg.zip", NULL};
+	    execv("/usr/bin/unzip", argv);
+	}
+	return 0; 
+```
+1. Merupakan Child2
+2. Menggunakan `execv` kita dapat menggunakan `unzip` terhadap jpg.zip dengan mode `-q` (quiet) atau tanpa menyebutkan masing-masing nama file yang telah di unzip ke terminal.
+
+## Kendala.
+- Nomor 2 tidak dapat diselesaikan praktikkan (poin d dan e) dikarenakan praktikkan belum mengetahui bagaimana solusi ataupun langkah-langkah menuju penyelesaian 
+- Hal diatas dikarenakan masih kurangnya pengetahuan praktikkan terhadap bahasa pemrograman C.
