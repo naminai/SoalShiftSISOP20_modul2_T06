@@ -146,6 +146,64 @@ close(STDIN_FILENO);
 }     
 ```
 
+```  
+  int detik = -1;
+  int menit = -1;
+  int jam = -1; 
+  ```
+  1. Deklarasi variabel detik, menit, dan jam dan set value mereka = -1.
+  
+  ``` 
+  time_t waktu = time(NULL);
+  struct tm cTime = *localtime(&waktu);
+  ```
+  1. Mencari waktu lokal (waktu terkini) menggunakan datatype time_t yang digunakan untuk menyimpan nilai waktu sistem dan mengisinya dengan time(NULL) yang akan me-return waktu terkini.
+  2. Deklarasi structure tm bernama cTime, yang akan digunakan untuk mendapatkan nilai `tm_sec`(detik), `tm_min`(menit), `tm_hour`(jam).
+  
+  ```
+  if (jumlah != 5) {
+    printf ("Argumen terlalu banyak / terlalu sedikit, pastikan pas\n");
+    }
+  if (argumen[1][0] != '*') detik = atoi(argumen[1]);
+  if (argumen[2][0] != '*') menit = atoi(argumen[2]);
+  if (argumen[3][0] != '*') jam = atoi(argumen[3]);
+  ```
+  1. Melakukan pengecekan terhadap jumlah argumen yang diinput user, 5 argumen yaitu `argumen[0]` = nama program, `argumen[1]` = detik, `argumen[2]` = menit, `argumen[3]`= jam, `argumen[4]` = lokasi/nama file.
+  2. Melakukan pengecekan terhadap masing-masing argumen, dimana apabila bukan char `*`, maka akan dikonversi dari string menjadi integer menggunakan `atoi`.
+  
+  ```
+  if (detik>=60) {
+    printf("Detiknya tuh kebanyakan, kurangin dong\n");
+  }
+  if (detik<0) {
+    printf("Detiknya tuh kurang banyak, banyakin dong\n");
+  }
+  if (menit>=60) {
+    printf("Menitnya tuh kebanyakan, kurangin dong\n");
+  }
+  if (menit<0) {
+    printf("Menitnya tuh kurang banyak, tambahin dong\n");
+  }
+  if (jam>=25) {
+    printf("Jamnya tuh kebanyakan, tambahin dong\n");
+  }
+  if (jam<0) {
+    printf("Jamnya tuh kurang banyak, tambahin dong\n");
+  ```
+  1. Pengecekan detik, menit, dan jam.
+  2. Menit dan detik lebih besar dari 60, karena terhitung dari 0-59.
+  3. Jam lebih besar dari 25, karena terhitung dari 0-24.
+  
+  ```
+  if ((cTime.tm_hour == jam || jam == -1) && (cTime.tm_min == menit || menit == -1) && (cTime.tm_sec == detik || detik == -1)) {
+    if (fork()==0)
+      execl("/bin/bash", "bash", argumen[4], NULL);}
+      sleep(1);
+  ```
+  1. Melakukan pengecekan untuk jam, menit, dan detik terhadap waktu lokal. Terkecuali apabila jam = -1, maka kita perlakukan sebagai `*` atau any value. 
+  2. Selain itu maka kita sesuaikan dengan jam, menit, maupun detik argumen. Apabila waktu lokal sama dengan argumen, maka program bash `argumen[4]` dijalankan dengan `execl`. 
+  3. Sleep setiap 1 detik, agar daemon terus melakukan cek setiap detiknya (apabila `*` atau any value).
+  
 ## Soal 2 
 Source code : [source](https://github.com/naminai/SoalShiftSISOP20_modul2_T06/tree/master/soal2) 
 
@@ -222,37 +280,36 @@ int main(int argc,char* argv[]) {
   close(STDIN_FILENO);
   close(STDOUT_FILENO);
   close(STDERR_FILENO);
-
-   if (child_id < 0) {
+  
+  if (child_id < 0) {
     exit(EXIT_FAILURE);
-   }
+  }
 
-   while (1){
+  while (1){
       char newFile[100];
       char file[100];
       char url[100];
       char dirList[100];
-      char zipFIle[100];
+      char zipFile[100];
       time_t rawtime, loctime;
       struct tm * cur_time, * nex_time;
       rawtime = time(NULL);
-      loctime = localtime (&rawtime);  
-      strftime(file, 100, "/home/donny/modul2/%Y-%m-%d_%H:%M:%S", loctime);
-      strftime(zipFIle, 100, "%Y-%m-%d_%H:%M:%S", loctime);
+      cur_time = localtime (&rawtime);  
+      strftime(file, 100, "/home/donny/modul2/%Y-%m-%d_%H:%M:%S", cur_time);
+      strftime(zipFile, 100, "%Y-%m-%d_%H:%M:%S", cur_time);
 
       if(fork()==0)
       {
         execl("/bin/mkdir","mkdir","-p",file, NULL);
       }
-
       if(fork()==0){
         for(int i=0; i<20 ;i++){
-          cur_time = time(NULL);
-          nex_time = localtime(&cur_time);
+          loctime = time(NULL);
+          nex_time = localtime(&rawtime);
           if(fork()==0){
-            strftime(file1, 100, "/%Y-%m-%d_%H:%M:%S", nex_time);
-            strcat(file, file1);
-            int file_size = ((cur_time % 1000) + 100);
+            strftime(newFile, 100, "/%Y-%m-%d_%H:%M:%S", nex_time);
+            strcat(file, newFile);
+            int file_size = ((loctime % 1000) + 100);
             sprintf(url,"https://picsum.photos/%d",file_size);
             execl("/usr/bin/wget","wget","-O", file, url, NULL);
           }
@@ -266,6 +323,7 @@ int main(int argc,char* argv[]) {
     }}
 ```
 
+1. Deklarasi newFile
 ## Soal 3
 Source Code : [souce](https://github.com/naminai/SoalShiftSISOP20_modul2_T06/tree/master/soal3)
 
